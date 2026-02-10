@@ -2002,3 +2002,40 @@ type Job struct {
 	// example: 2025-12-29T10:30:00Z
 	EndedAt time.Time `json:"endedAt"`
 }
+
+// DcuLinkInfo 描述两张 DCU 之间的互联关系
+type DcuLinkInfo struct {
+	// SrcDvInd 源 DCU 索引
+	// example: 0
+	SrcDvInd int `json:"srcDvInd"`
+
+	// DstDvInd 目标 DCU 索引
+	// example: 1
+	DstDvInd int `json:"dstDvInd"`
+
+	// RemoteBdfID 目标 DCU 的 BDFID
+	// example: 0x2500
+	RemoteBdfID uint64 `json:"remoteBdfID"`
+
+	// LinkType 链路类型: PCIE / XGMI / HYSWITCH / NONE
+	// example: XGMI
+	LinkType string `json:"linkType"`
+
+	// Weight 链路权重
+	// example: 2
+	Weight int `json:"weight"`
+
+	// Hops 跳数（目前可置 0 或 1）
+	// example: 1
+	Hops int `json:"hops"`
+}
+
+// DcuInterconnectMatrix 描述整机 DCU 互联矩阵
+type DcuInterconnectMatrix struct {
+	// DeviceCount DCU 总数
+	// example: 8
+	DeviceCount int `json:"deviceCount"`
+
+	// Matrix 互联矩阵: [src][dst] 对应 DcuLinkInfo
+	Matrix [][]DcuLinkInfo `json:"matrix"`
+}

@@ -93,7 +93,7 @@ func init() {
 
 func handleFieldList() {
 	fieldMetaList := dcgm.ListFieldMeta()
-	
+
 	fmt.Println("+-------------------+----------------------------------------------------------+")
 	fmt.Println("| Field ID          | Field Name                                               |")
 	fmt.Println("+-------------------+----------------------------------------------------------+")

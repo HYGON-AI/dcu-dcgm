@@ -227,7 +227,7 @@ func rsmiDevPciIdGet(dvInd int) (bdfid int64, err error) {
 		return bdfid, err
 	}
 	bdfid = int64(cbdfid)
-	glog.V(5).Infof("🚀🚀🚀dvInd: %v  rsmiDevPciIdGet bdfid:%v",dvInd, bdfid)
+	glog.V(5).Infof("🚀🚀🚀dvInd: %v  rsmiDevPciIdGet bdfid:%v", dvInd, bdfid)
 	return
 }
 

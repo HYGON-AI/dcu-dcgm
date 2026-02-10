@@ -663,7 +663,7 @@ func nvmlGetSystemMigMode() (currentMode, pendingMode int, err error) {
 func migConfigs() ([]MigConfig, error) {
 	const (
 		baseDir = "/etc/dmi_mig_config" // 基础配置目录
-		ciDir   = "/ci" // CI配置子目录
+		ciDir   = "/ci"                 // CI配置子目录
 	)
 
 	// 检查基础目录是否存在
@@ -966,4 +966,3 @@ func formatMIGName(
 		memoryGB,
 	)
 }
-

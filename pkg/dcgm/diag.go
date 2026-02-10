@@ -18,6 +18,7 @@ const (
 func runDiag(level int) (diagResults DiagResults, err error) {
 	// 保证诊断执行完后自动清理 stop 状态
 	defer resetDiagStop()
+
 	devCount, _ := listFilesInDevDri()
 	numDevices, err := NumMonitorDevices()
 	if numDevices == devCount {

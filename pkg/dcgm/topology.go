@@ -75,12 +75,12 @@ func rsmiDevXhclLinkNumber(dvInd int) (int, error) {
 		&cLinkNum,
 	)
 
-	glog.V(5).Infof(
-		"rsmi_dev_xhcl_link_number_get dvInd: %v ret: %v linkNum: %v",
-		dvInd,
-		ret,
-		cLinkNum,
-	)
+	//glog.V(5).Infof(
+	//	"rsmi_dev_xhcl_link_number_get dvInd: %v ret: %v linkNum: %v",
+	//	dvInd,
+	//	ret,
+	//	cLinkNum,
+	//)
 
 	if err := errorString(ret); err != nil {
 		return 0, err
@@ -99,13 +99,13 @@ func rsmiDevXhclLinkState(dvInd int, linkID int) (linkState uint32, err error) {
 		&cLinkState,
 	)
 
-	glog.V(5).Infof(
-		"rsmi_dev_xhcl_link_state_get dvInd: %v linkID: %v ret: %v linkState=%d",
-		dvInd,
-		linkID,
-		ret,
-		cLinkState,
-	)
+	//glog.V(5).Infof(
+	//	"rsmi_dev_xhcl_link_state_get dvInd: %v linkID: %v ret: %v linkState=%d",
+	//	dvInd,
+	//	linkID,
+	//	ret,
+	//	cLinkState,
+	//)
 
 	if err = errorString(ret); err != nil {
 		return 0, err
@@ -192,12 +192,12 @@ func rsmiXhclLinkRemoteBdfidGet(dvInd int, linkID int) (bdfid uint64, err error)
 	bdfid = uint64(cbdfid)
 
 	// 打印返回值（重点）
-	glog.V(5).Infof(
-		"DCU %d XHCL link %d remote bdfid = 0x%x",
-		dvInd,
-		linkID,
-		bdfid,
-	)
+	//glog.V(5).Infof(
+	//	"DCU %d XHCL link %d remote bdfid = 0x%x",
+	//	dvInd,
+	//	linkID,
+	//	bdfid,
+	//)
 
 	//// 拆解 bus:device.function
 	//bus := (bdfid >> 8) & 0xff

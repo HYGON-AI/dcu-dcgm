@@ -134,6 +134,7 @@ func InitRouter() *gin.Engine {
 	router.POST("/showTypeTopology", ShowTypeTopology)
 	router.POST("/showNumaTopology", ShowNumaTopology)
 	router.POST("/showHwTopology", ShowHwTopology)
+	router.GET("/discoverInterconnectTopology", DiscoverInterconnectTopology)
 	router.GET("/deviceCount", DeviceCount)
 	router.GET("/VDeviceSingleInfo/:vDvInd", VDeviceSingleInfo)
 	router.GET("/vDeviceCount", VDeviceCount)
