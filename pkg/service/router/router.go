@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package router
 
 import (
@@ -26,7 +30,7 @@ func InitRouter() *gin.Engine {
 	router.GET("/DeviceInfo/:dvInd", GetDeviceByDvInd)
 	router.GET("/VDeviceByDvInd/:dvInd", VDeviceByDvInd)
 	// 路由
-	router.GET("/PciBusInfo/:dvInd", PciBusInfo)
+	router.GET("/PicbusInfo/:dvInd", PicBusInfo)
 	router.GET("/DFBandwidth/:dvInd", DFBandwidth)
 	// 路由(K100 AI不支持)
 	router.GET("/FanSpeedInfo/:dvInd", FanSpeedInfo)
@@ -134,7 +138,6 @@ func InitRouter() *gin.Engine {
 	router.POST("/showTypeTopology", ShowTypeTopology)
 	router.POST("/showNumaTopology", ShowNumaTopology)
 	router.POST("/showHwTopology", ShowHwTopology)
-	router.GET("/discoverInterconnectTopology", DiscoverInterconnectTopology)
 	router.GET("/deviceCount", DeviceCount)
 	router.GET("/VDeviceSingleInfo/:vDvInd", VDeviceSingleInfo)
 	router.GET("/vDeviceCount", VDeviceCount)

@@ -1,13 +1,16 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package cli
 
 import (
 	"fmt"
+	"g.sugon.com/das/dcgm-dcu/pkg/dcgm"
+	"github.com/spf13/cobra"
 	"slices"
 	"strconv"
 	"strings"
-
-	"g.sugon.com/das/dcgm-dcu/pkg/dcgm"
-	"github.com/spf13/cobra"
 )
 
 const NOT_APPLICABLE = "****"
@@ -89,7 +92,7 @@ func handleDiscoveryList() {
 		if err != nil {
 			dcuUniqueId = "N/A"
 		}
-		pciId, err := dcgm.PciBusInfo(i)
+		pciId, err := dcgm.PicBusInfo(i)
 		if err != nil {
 			pciId = "N/A"
 		}
@@ -216,7 +219,7 @@ func getIdentifiers(dcuIndex int) (nameStr, pciId, dcuUniqueId, dcuSerialNumber,
 		dcuTypeName = "N/A"
 	}
 	nameStr = dcuName + " - " + dcuTypeName
-	pciId, err = dcgm.PciBusInfo(dcuIndex)
+	pciId, err = dcgm.PicBusInfo(dcuIndex)
 	if err != nil {
 		pciId = "N/A"
 	}

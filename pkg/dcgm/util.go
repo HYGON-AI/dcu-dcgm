@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 /*
 #cgo CFLAGS: -Wall -I./include
-#cgo LDFLAGS: -L./lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdint.h>
 #include <kfd_ioctl.h>
 #include <rocm_smi64Config.h>
@@ -1064,20 +1068,4 @@ func loadUpdateIDsMap() error {
 	)
 
 	return nil
-}
-
-// FormatBDFID converts a uint64 BDFID to standard PCI format.
-// Format: dddd:bb:dd.f
-func formatBDFID(bdfid uint64) string {
-	domain := (bdfid >> 32) & 0xffffffff
-	bus := (bdfid >> 8) & 0xff
-	device := (bdfid >> 3) & 0x1f
-	function := bdfid & 0x7
-
-	return fmt.Sprintf("%04x:%02x:%02x.%x",
-		domain,
-		bus,
-		device,
-		function,
-	)
 }

@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 import "C"
@@ -71,6 +75,7 @@ func Init() (err error) {
 
 				if devCount == numDevices && devCount == deviceCount {
 					glog.V(5).Infof("DCU initialization is complete:%v", numDevices)
+					probeDriverCaps()
 					// 返回 listErr（如果有），否则返回 nil
 					return listErr
 				} else {
@@ -876,7 +881,7 @@ func AllDeviceInfos() ([]PhysicalDeviceInfo, error) {
 	return allDevices, nil
 }
 
-// PciBusInfo 获取设备的总线信息
+// PicBusInfo 获取设备的总线信息
 // @Summary 获取设备的总线信息
 // @Description 根据设备索引返回对应的总线信息（BDF格式）
 // @Produce json
@@ -884,8 +889,8 @@ func AllDeviceInfos() ([]PhysicalDeviceInfo, error) {
 // @Success 200 {string} string "返回设备的总线信息"
 // @Failure 400 {object} error "请求参数错误"
 // @Failure 500 {object} error "服务器内部错误"
-// @Router /PciBusInfo [get]
-func PciBusInfo(dvInd int) (pciID string, err error) {
+// @Router /PicBusInfo [get]
+func PicBusInfo(dvInd int) (picID string, err error) {
 	bdfid, err := rsmiDevPciIdGet(dvInd)
 	if err != nil {
 		return "", err
@@ -896,7 +901,7 @@ func PciBusInfo(dvInd int) (pciID string, err error) {
 	devID := (bdfid >> 3) & 0x1f
 	function := bdfid & 0x7
 	// Format and return the bus identifier
-	pciID = fmt.Sprintf("%04x:%02x:%02x.%x", domain, bus, devID, function)
+	picID = fmt.Sprintf("%04x:%02x:%02x.%x", domain, bus, devID, function)
 	return
 }
 
@@ -2032,17 +2037,17 @@ func DevPowerProfilePresetsGet(dvInd, sensorInd int) (powerProfileStatus PowerPr
 // @Success 200 {string} string "设备总线ID"
 // @Failure 400 {string} string "失败信息"
 // @Router /GetBus/{device} [get]
-func GetBus(dvInd int) (pciId string, err error) {
+func GetBus(dvInd int) (picId string, err error) {
 
 	bdfid, err := rsmiDevPciIdGet(dvInd)
 	if err != nil {
-		return pciId, err
+		return picId, err
 	}
 	domain := (bdfid >> 32) & 0xffffffff
 	bus := (bdfid >> 8) & 0xff
 	dev := (bdfid >> 3) & 0x1f
 	function := bdfid & 0x7
-	pciId = fmt.Sprintf("%04x:%02x:%02x.%x", domain, bus, dev, function)
+	picId = fmt.Sprintf("%04x:%02x:%02x.%x", domain, bus, dev, function)
 	return
 }
 
@@ -3547,10 +3552,14 @@ func XhclLinkStates(dvInd int) ([]XhclLinkState, error) {
 
 	states := make([]XhclLinkState, 0, linkNum)
 
-	glog.V(5).Infof("GetXhclLinkStates dvInd: %v linkNum: %v", dvInd, linkNum)
+	glog.V(5).Infof(
+		"GetXhclLinkStates dvInd: %v linkNum: %v",
+		dvInd,
+		linkNum,
+	)
 
 	for linkID := 0; linkID < linkNum; linkID++ {
-		groupID, err := rsmiDevXhclLinkState(dvInd, linkID)
+		state, err := rsmiDevXhclLinkState(dvInd, linkID)
 		if err != nil {
 			glog.V(5).Infof(
 				"GetXhclLinkStates dvInd: %v linkID: %v error: %v",
@@ -3562,16 +3571,18 @@ func XhclLinkStates(dvInd int) ([]XhclLinkState, error) {
 		}
 
 		linkState := XhclLinkState{
-			LinkID:  linkID,
-			GroupID: int(groupID),
+			LinkID: linkID,
+			State:  state,
+			Up:     state == XhclLinkUp,
 		}
 
 		glog.V(5).Infof(
-			"DCU %d XHCL link %d/%d groupID=%d",
+			"GPU %d XHCL link %d/%d state=%d up=%v",
 			dvInd,
 			linkID,
 			linkNum,
-			groupID,
+			state,
+			linkState.Up,
 		)
 
 		states = append(states, linkState)
@@ -3580,34 +3591,46 @@ func XhclLinkStates(dvInd int) ([]XhclLinkState, error) {
 	return states, nil
 }
 
-// DumpXhclRemoteBdfids 枚举指定 DCU 的 XHCL 链路并返回其远端设备 BDF ID。
+// DumpXhclRemoteBdfids 获取指定 GPU 上所有 UP 状态的 XHCL 链路对应的远端设备 BDF ID。
 //
-// @Summary 获取 DCU 的 XHCL 远端设备 BDF 信息
-// @Description 枚举指定 DCU 上的 XHCL 链路，返回每条链路对应的远端设备 BDF ID，用于拓扑分析。
+// @Summary 获取 GPU 的 XHCL 远端设备 BDF 信息
+// @Description 枚举指定 GPU 上所有处于 UP 状态的 XHCL 链路，并返回每条链路所连接的远端设备 BDF ID。
 // @Tags Topology
-// @Param dvInd query int true "设备 ID（DCU Index）"
+// @Param dvInd query int true "设备 ID（GPU Index）"
 // @Success 200 {array} XhclRemoteBdf "XHCL 链路远端设备 BDF 列表"
 // @Failure 500 {string} string "查询 XHCL 远端 BDF 信息失败"
 func DumpXhclRemoteBdfids(dvInd int) ([]XhclRemoteBdf, error) {
-	links, err := XhclLinkStates(dvInd)
+	states, err := XhclLinkStates(dvInd)
 	if err != nil {
 		return nil, err
 	}
 
 	results := make([]XhclRemoteBdf, 0)
 
-	for _, link := range links {
-		bdfid, err := rsmiXhclLinkRemoteBdfidGet(dvInd, link.LinkID)
+	for _, s := range states {
+		// 只处理 UP 状态的链路
+		if !s.Up {
+			continue
+		}
+
+		bdfid, err := rsmiXhclLinkRemoteBdfidGet(dvInd, s.LinkID)
 		if err != nil {
 			glog.Warningf(
 				"DCU %d link %d get remote bdfid failed: %v",
-				dvInd, link.LinkID, err,
+				dvInd, s.LinkID, err,
 			)
 			continue
 		}
 
+		glog.V(5).Infof(
+			"DCU %d XHCL link %d -> remote BDFID: 0x%x",
+			dvInd,
+			s.LinkID,
+			bdfid,
+		)
+
 		results = append(results, XhclRemoteBdf{
-			LinkID: link.LinkID,
+			LinkID: s.LinkID,
 			BdfID:  bdfid,
 		})
 	}
@@ -3615,157 +3638,134 @@ func DumpXhclRemoteBdfids(dvInd int) ([]XhclRemoteBdf, error) {
 	return results, nil
 }
 
-// DiscoverInterconnectTopology 枚举整机 DCU 的互联关系，返回 DCU × DCU 的互联矩阵。
+// GetGpuInterconnectInfo 获取指定 GPU 的互联拓扑信息
 //
-// @Summary 获取整机 DCU 的互联矩阵信息
-// @Description 枚举整机 DCU 互联关系，包括链路类型（PCIe / XGMI / HYSWITCH / NONE）及对应权重。
-//   - 自动获取 DCU 数量
-//   - 构建 DCU × DCU 的互联矩阵
-//   - 判断每一对 DCU 之间的链路类型
-//   - 计算对应的链路权重（PCIe / NUMA / XGMI / HYSWITCH）
+// 该函数从单卡视角出发，综合 PCIe / XGMI / Hyswitch 信息，
+// 判断 GPU 的互联类型、互联规模（几卡互联），以及与各直连 GPU
+// 之间的链路权重（XHCL link 数量）。
 //
-// @Tags Topology
-// @Success 200 {object} DcuInterconnectMatrix "DCU 互联矩阵信息"
-// @Failure 500 {string} string "查询 DCU 互联信息失败"
-func DiscoverInterconnectTopology() (matrix DcuInterconnectMatrix, err error) {
+// @param srcDvInd     当前 GPU 的设备索引
+// @param dstDvIndList 系统中其他 GPU 的设备索引列表
+//
+// @return info  GPU 的互联拓扑信息
+// @return err   查询或分析过程中发生的错误
+func GetGpuInterconnectInfo(srcDvInd int, dstDvIndList []int) (info GpuInterconnectInfo, err error) {
+	glog.V(5).Infof("GetGpuInterconnectInfo start, srcDvInd=%v, dstDvIndList=%v", srcDvInd, dstDvIndList)
 
-	// ---------- 1. 获取 DCU 数量 ----------
-	deviceCount, err := NumMonitorDevices()
-	if err != nil {
-		return matrix, err
-	}
-
-	matrix.DeviceCount = deviceCount
-	glog.V(5).Infof("DiscoverInterconnectTopology start, deviceCount=%d", deviceCount)
-
-	// 初始化矩阵
-	matrix.Matrix = make([][]DcuLinkInfo, deviceCount)
-	for i := 0; i < deviceCount; i++ {
-		matrix.Matrix[i] = make([]DcuLinkInfo, deviceCount)
-	}
-
-	// ---------- 2. 预获取所有 DCU 的 BDFID ----------
-	dvIndToBdf := make(map[int]uint64)
-	for i := 0; i < deviceCount; i++ {
-		bdfid, err := rsmiDevPciIdGet(i)
+	// ---------- 0. 建立 BDFID -> dvInd 映射 ----------
+	bdfToDvInd := make(map[uint64]int)
+	for _, dv := range dstDvIndList {
+		bdfid, err := rsmiDevPciIdGet(dv)
 		if err != nil {
-			return matrix, err
+			return info, err
 		}
-		dvIndToBdf[i] = uint64(bdfid)
-
-		glog.V(5).Infof(
-			"DCU %d BDFID=0x%x",
-			i, dvIndToBdf[i],
-		)
+		bdfToDvInd[uint64(bdfid)] = dv
 	}
 
-	// ---------- 3. 逐对构建互联关系 ----------
-	for src := 0; src < deviceCount; src++ {
+	// ---------- 1. 判断每个 dst GPU 的链路类型 ----------
+	pcieLinks := make([]int, 0) // 保存 PCIe 直连的 GPU 索引
+	xgmiLinks := make([]int, 0) // 保存 XGMI 直连的 GPU 索引
+	isHyswitch := false         // 是否有 Hyswitch
 
-		for dst := 0; dst < deviceCount; dst++ {
+	for _, dst := range dstDvIndList {
+		if dst == srcDvInd {
+			continue
+		}
 
-			linkInfo := DcuLinkInfo{
-				SrcDvInd: src,
-				DstDvInd: dst,
-				BdfID:    dvIndToBdf[dst],
-				LinkType: "NONE",
-				Weight:   0,
-				Hops:     0,
-			}
+		linkTypes, err := GetTopoLinkType(srcDvInd, []int{dst})
+		if err != nil {
+			return info, err
+		}
+		if len(linkTypes) == 0 {
+			continue
+		}
 
-			// 自己到自己
-			if src == dst {
-				linkInfo.Weight = -1
-				matrix.Matrix[src][dst] = linkInfo
-				continue
-			}
-
-			// ---------- 3.1 查询链路类型 ----------
-			linkTypes, err := GetTopoLinkType(src, []int{dst})
+		switch linkTypes[0] {
+		case LinkTypePCIE:
+			pcieLinks = append(pcieLinks, dst)
+			glog.V(5).Infof("GPU %v direct PCIe link detected with GPU %v", srcDvInd, dst)
+		case LinkTypeXGMI:
+			xgmiLinks = append(xgmiLinks, dst)
+			hylink, err := TopoIsHylink(srcDvInd, dst)
 			if err != nil {
-				return matrix, err
+				return info, err
 			}
-
-			if len(linkTypes) == 0 {
-				matrix.Matrix[src][dst] = linkInfo
-				continue
+			if hylink {
+				isHyswitch = true
 			}
-
-			switch linkTypes[0] {
-
-			// ---------- PCIe ----------
-			case LinkTypePCIE:
-				linkInfo.LinkType = LinkTypePCIE
-
-				// NUMA 判断权重
-				numaInfos, err := ShowNumaTopology([]int{src, dst})
-				if err != nil {
-					return matrix, err
-				}
-
-				if len(numaInfos) == 2 &&
-					numaInfos[0].NumaNode == numaInfos[1].NumaNode {
-					linkInfo.Weight = 1
-				} else {
-					linkInfo.Weight = 0
-				}
-
-				glog.V(5).Infof(
-					"DCU %d -> %d PCIE link, weight=%d",
-					src, dst, linkInfo.Weight,
-				)
-
-			// ---------- XGMI ----------
-			case LinkTypeXGMI:
-				isHyswitch, err := TopoIsHylink(src, dst)
-				if err != nil {
-					return matrix, err
-				}
-
-				if isHyswitch {
-					// HYSWITCH：全互联
-					linkInfo.LinkType = LinkTypeXGMIHyswitch
-					linkInfo.Weight = deviceCount - 1
-
-					glog.V(5).Infof(
-						"DCU %d -> %d HYSWITCH link, weight=%d",
-						src, dst, linkInfo.Weight,
-					)
-				} else {
-					// 普通 XGMI，根据 XHCL link 数量算权重
-					linkInfo.LinkType = LinkTypeXGMI
-
-					xhclLinks, err := DumpXhclRemoteBdfids(src)
-					if err != nil {
-						return matrix, err
-					}
-
-					for _, l := range xhclLinks {
-						if l.BdfID == dvIndToBdf[dst] {
-							linkInfo.Weight++
-						}
-					}
-
-					glog.V(5).Infof(
-						"DCU %d -> %d XGMI link, weight=%d",
-						src, dst, linkInfo.Weight,
-					)
-				}
-
-			default:
-				linkInfo.LinkType = LinkTypeUnknown
-			}
-
-			matrix.Matrix[src][dst] = linkInfo
+		default:
+			glog.V(5).Infof("GPU %v unknown link type with GPU %v", srcDvInd, dst)
 		}
 	}
-	for i := range matrix.Matrix {
-		for j := range matrix.Matrix[i] {
-			matrix.Matrix[i][j].PciID =
-				formatBDFID(matrix.Matrix[i][j].BdfID)
+
+	// ---------- 2. 处理 XGMI / Hyswitch 链路 ----------
+	bdfWeightMap := make(map[uint64]*DirectLinkInfo) // BDFID -> DirectLinkInfo
+	if len(xgmiLinks) > 0 {
+		xhclLinks, err := DumpXhclRemoteBdfids(srcDvInd)
+		if err != nil {
+			return info, err
+		}
+
+		for _, link := range xhclLinks {
+			if infoLink, ok := bdfWeightMap[link.BdfID]; ok {
+				infoLink.Weight++
+			} else {
+				dvInd := -1
+				if v, ok := bdfToDvInd[link.BdfID]; ok {
+					dvInd = v
+				}
+				bdfWeightMap[link.BdfID] = &DirectLinkInfo{
+					RemoteDvInd: dvInd,
+					RemoteBdfID: link.BdfID,
+					LinkType:    LinkTypeXGMI,
+					Weight:      1,
+				}
+			}
 		}
 	}
-	return matrix, nil
+
+	// ---------- 3. 处理 PCIe 链路 ----------
+	for _, dst := range pcieLinks {
+		bdfid, err := rsmiDevPciIdGet(dst)
+		if err != nil {
+			glog.V(5).Infof("rsmiDevPciIdGet failed for dvInd=%v, err=%v", dst, err)
+			continue
+		}
+
+		bdfWeightMap[uint64(bdfid)] = &DirectLinkInfo{
+			RemoteDvInd: dst,
+			RemoteBdfID: uint64(bdfid),
+			LinkType:    LinkTypePCIE,
+			Weight:      1,
+		}
+	}
+
+	// ---------- 4. 构造返回 Links ----------
+	for _, link := range bdfWeightMap {
+		info.Links = append(info.Links, *link)
+	}
+
+	// ---------- 5. 填充总体互联类型 ----------
+	switch {
+	case len(pcieLinks) > 0 && len(xgmiLinks) > 0:
+		info.LinkType = LinkTypeHybrid
+	case len(xgmiLinks) > 0 && isHyswitch:
+		info.LinkType = LinkTypeXGMIHyswitch
+	case len(xgmiLinks) > 0:
+		info.LinkType = LinkTypeXGMI
+	case len(pcieLinks) > 0:
+		info.LinkType = LinkTypePCIE
+	default:
+		info.LinkType = LinkTypeUnknown
+	}
+
+	// ---------- 6. 填充互联规模 ----------
+	info.CardCount = len(info.Links) + 1 // +1 表示自身
+
+	glog.V(5).Infof("GetGpuInterconnectInfo done, srcDvInd=%v, linkType=%v, cardCount=%v",
+		srcDvInd, info.LinkType, info.CardCount)
+
+	return info, nil
 }
 
 /*************************************VDCU******************************************/

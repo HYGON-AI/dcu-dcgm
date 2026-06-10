@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 /*
 #cgo CFLAGS: -Wall -I./include
-#cgo LDFLAGS: -L./lib -lrocm_smi64 -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdint.h>
 #include <kfd_ioctl.h>
 #include <rocm_smi64Config.h>
@@ -75,12 +79,12 @@ func rsmiDevXhclLinkNumber(dvInd int) (int, error) {
 		&cLinkNum,
 	)
 
-	//glog.V(5).Infof(
-	//	"rsmi_dev_xhcl_link_number_get dvInd: %v ret: %v linkNum: %v",
-	//	dvInd,
-	//	ret,
-	//	cLinkNum,
-	//)
+	glog.V(5).Infof(
+		"rsmi_dev_xhcl_link_number_get dvInd: %v ret: %v linkNum: %v",
+		dvInd,
+		ret,
+		cLinkNum,
+	)
 
 	if err := errorString(ret); err != nil {
 		return 0, err
@@ -99,13 +103,13 @@ func rsmiDevXhclLinkState(dvInd int, linkID int) (linkState uint32, err error) {
 		&cLinkState,
 	)
 
-	//glog.V(5).Infof(
-	//	"rsmi_dev_xhcl_link_state_get dvInd: %v linkID: %v ret: %v linkState=%d",
-	//	dvInd,
-	//	linkID,
-	//	ret,
-	//	cLinkState,
-	//)
+	glog.V(5).Infof(
+		"rsmi_dev_xhcl_link_state_get dvInd: %v linkID: %v ret: %v linkState=%d",
+		dvInd,
+		linkID,
+		ret,
+		cLinkState,
+	)
 
 	if err = errorString(ret); err != nil {
 		return 0, err
@@ -193,7 +197,7 @@ func rsmiXhclLinkRemoteBdfidGet(dvInd int, linkID int) (bdfid uint64, err error)
 
 	// 打印返回值（重点）
 	glog.V(5).Infof(
-		"✈️✈️✈️DCU %d XHCL link %d remote bdfid :%v",
+		"DCU %d XHCL link %d remote bdfid = 0x%x",
 		dvInd,
 		linkID,
 		bdfid,

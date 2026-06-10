@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 /*
 #cgo CFLAGS: -Wall -I./include
-#cgo LDFLAGS: -L./lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -227,7 +231,7 @@ func rsmiDevPciIdGet(dvInd int) (bdfid int64, err error) {
 		return bdfid, err
 	}
 	bdfid = int64(cbdfid)
-	glog.V(5).Infof("🚀🚀🚀dvInd: %v  rsmiDevPciIdGet bdfid:%v", dvInd, bdfid)
+	glog.V(5).Infof("🚀🚀🚀dvInd: %v  rsmiDevPciIdGet bdfid:%v",dvInd, bdfid)
 	return
 }
 
@@ -568,6 +572,9 @@ func dfBandwidth(dvInd int, bandwidthType int) (dfBandwidthInfo DFBandwidthInfo,
 // delay: 测量延迟
 func xhclBandwidth(dvInd int, linkId int, direction int, delay int) (info XhclBandwidthInfo, err error) {
 	glog.V(5).Infof("xhclBandwidth, dvInd:%v, linkId:%v, direction:%v, delay:%v ", dvInd, linkId, direction, delay)
+	if err = ensureXhclBandwidth(); err != nil {
+		return info, err
+	}
 	if dvInd < 0 {
 		return info, fmt.Errorf("invalid dvInd: %d", dvInd)
 	}
@@ -606,6 +613,9 @@ func xhclBandwidth(dvInd int, linkId int, direction int, delay int) (info XhclBa
 // chanId: channel 索引（0..MAX_UMC_CHAN_NUM-1）
 // delay: 测量延迟
 func umcBandwidth(dvInd int, chanId int, delay int) (info UMCBandwidthInfo, err error) {
+	if err = ensureUmcBandwidth(); err != nil {
+		return info, err
+	}
 	// 非负校验
 	if dvInd < 0 {
 		return info, fmt.Errorf("invalid dvInd: %d", dvInd)

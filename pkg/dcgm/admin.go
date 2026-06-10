@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 /*
 #cgo CFLAGS: -Wall -I./include
-#cgo LDFLAGS: -L./lib -lrocm_smi64 -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdint.h>
 #include <kfd_ioctl.h>
 #include <rocm_smi64Config.h>

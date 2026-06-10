@@ -1,4 +1,7 @@
 /*
+ * SPDX-License-Identifier: NCSA
+ * Copyright (c) 2024 Advanced Micro Devices, Inc. All rights reserved.
+ *
  * =============================================================================
  *   ROC Runtime Conformance Release License
  * =============================================================================

@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 /*
 #cgo CFLAGS: -Wall -I./include
-#cgo LDFLAGS: -L./lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdint.h>
 #include <kfd_ioctl.h>
 #include <rocm_smi64Config.h>
@@ -1156,7 +1160,6 @@ const (
 	LinkTypeXGMIHyswitch = "HYSWITCH" // Hyswitch
 	LinkTypeHybrid       = "HYBRID"   // PCIe + XGMI 混合互联
 	LinkTypeUnknown      = "UNKNOWN"  // 无法识别
-	LinkTypeNONE         = "NONE"
 )
 
 // BlocksInfo block信息
@@ -1683,9 +1686,11 @@ const (
 	XhclLinkUp uint32 = 1
 )
 
+// XhclLinkState 表示单条 XHCL（XGMI）物理链路的状态信息
 type XhclLinkState struct {
-	LinkID  int // 链路 ID
-	GroupID int // 所属互联组 ID（以前叫 State）
+	LinkID int    // 链路编号（从 0 开始）
+	State  uint32 // 驱动返回的原始链路状态值
+	Up     bool   // 是否为 UP（State == XhclLinkUp）
 }
 
 // XhclRemoteBdf 表示一条 XHCL 链路及其远端设备 BDF 信息
@@ -1705,19 +1710,17 @@ const updateIDsPath = "/opt/hyhal/bin/update_ids"
 
 var updateIDsMap map[string]string
 
-// DcuLinkInfo 描述两张 DCU 之间的互联关系
-type DcuLinkInfo struct {
-	SrcDvInd int    // 源 DCU 索引
-	DstDvInd int    // 目标 DCU 索引
-	BdfID    uint64 // 目标 DCU 的 BDFID
-	PciID    string // 目标DCU的pciID
-	LinkType string // PCIE / XGMI / HYSWITCH / NONE
-	Weight   int    // 链路权重
-	Hops     int    // 跳数（目前为0）
+// DirectLinkInfo 描述当前 GPU 与某一远端 GPU 的直连关系
+type DirectLinkInfo struct {
+	RemoteDvInd int    // 远端 GPU 的设备索引（-1 表示未匹配到）
+	RemoteBdfID uint64 // 远端 GPU 的 BDFID
+	LinkType    string // 链路类型：PCIE / XGMI
+	Weight      int    // 与该 GPU 的直连链路数量（权重）
 }
 
-// DcuInterconnectMatrix 描述整机 DCU 互联矩阵
-type DcuInterconnectMatrix struct {
-	DeviceCount int
-	Matrix      [][]DcuLinkInfo // [src][dst]
+// GpuInterconnectInfo 描述单张 GPU 的互联拓扑信息
+type GpuInterconnectInfo struct {
+	LinkType  string           // 总体互联类型：PCIE / XGMI / XGMI_HYSWITCH / HYBRID
+	CardCount int              // 参与互联的 GPU 数量（包含自身）
+	Links     []DirectLinkInfo // 与当前 GPU 直连的 GPU 信息
 }

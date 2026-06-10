@@ -1,6 +1,6 @@
 /*******************************************************************************
+ * SPDX-License-Identifier: Apache-2.0
  * Copyright 2016-2019 by SW Group, Chengdu Haiguang IC Design Co., Ltd.
- * All right reserved. See COPYRIGHT for detailed Information.
  *
  * @file        dmi_mig.h
  *

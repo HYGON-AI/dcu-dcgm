@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 import (
@@ -18,7 +22,6 @@ const (
 func runDiag(level int) (diagResults DiagResults, err error) {
 	// 保证诊断执行完后自动清理 stop 状态
 	defer resetDiagStop()
-
 	devCount, _ := listFilesInDevDri()
 	numDevices, err := NumMonitorDevices()
 	if numDevices == devCount {
@@ -121,7 +124,7 @@ func diagHardware(level int) (dcuResults []DCUResult, err error) {
 			})
 
 			// picBus Check
-			if picBusInfo, err := PciBusInfo(i); err != nil {
+			if picBusInfo, err := PicBusInfo(i); err != nil {
 				dcuResult.DiagResults = append(dcuResult.DiagResults, DiagResult{
 					Status:       DiagResultFail,
 					TestName:     "picBus Check",

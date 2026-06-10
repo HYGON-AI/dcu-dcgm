@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package router
 
 import (
@@ -430,14 +434,14 @@ func AllDeviceInfos(c *gin.Context) {
 // @Failure 400 {object} error "Invalid device ID"
 // @Failure 500 {object} error "Internal Server Error"
 // @Router /picbusinfo/{dvInd} [get]
-func PciBusInfo(c *gin.Context) {
+func PicBusInfo(c *gin.Context) {
 	dvInd, err := strconv.Atoi(c.Param("dvInd"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse("Invalid device ID"))
 		return
 	}
 
-	busInfo, err := dcgm.PciBusInfo(dvInd)
+	busInfo, err := dcgm.PicBusInfo(dvInd)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(err.Error()))
 		return
@@ -2816,46 +2820,6 @@ func ShowHwTopology(c *gin.Context) {
 
 	dcgm.ShowHwTopology(dvIdList)
 	c.String(http.StatusOK, "指定设备的完整硬件拓扑信息已显示")
-}
-
-// @Tags Topology
-// @Summary 显示整机 DCU 互联矩阵信息
-// @Description 枚举整机 DCU 的互联关系，包括链路类型（PCIe / XGMI / HYSWITCH / NONE）及对应权重。
-//
-//	返回 DCU × DCU 的互联矩阵，可用于拓扑分析。
-//
-// @Success 200 {object} DeviceDcuInterconnectMatrix "DCU 互联矩阵信息"
-// @Failure 500 {object} error "查询 DCU 互联信息失败"
-// @Router /discoverInterconnectTopology [get]
-func DiscoverInterconnectTopology(c *gin.Context) {
-	matrix, err := dcgm.DiscoverInterconnectTopology()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse(err.Error()))
-		return
-	}
-
-	// 转换成当前包定义的结构体
-	deviceMatrix := DcuInterconnectMatrix{
-		DeviceCount: matrix.DeviceCount,
-		Matrix:      make([][]DcuLinkInfo, matrix.DeviceCount),
-	}
-
-	for i := 0; i < matrix.DeviceCount; i++ {
-		deviceMatrix.Matrix[i] = make([]DcuLinkInfo, matrix.DeviceCount)
-		for j := 0; j < matrix.DeviceCount; j++ {
-			link := matrix.Matrix[i][j]
-			deviceMatrix.Matrix[i][j] = DcuLinkInfo{
-				SrcDvInd: link.SrcDvInd,
-				DstDvInd: link.DstDvInd,
-				PciID:    link.PciID,
-				LinkType: link.LinkType,
-				Weight:   link.Weight,
-				Hops:     link.Hops,
-			}
-		}
-	}
-
-	c.JSON(http.StatusOK, SuccessResponse(deviceMatrix))
 }
 
 // @Tags Device

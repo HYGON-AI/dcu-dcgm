@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package cli
 
 import (
@@ -93,7 +97,7 @@ func init() {
 
 func handleFieldList() {
 	fieldMetaList := dcgm.ListFieldMeta()
-
+	
 	fmt.Println("+-------------------+----------------------------------------------------------+")
 	fmt.Println("| Field ID          | Field Name                                               |")
 	fmt.Println("+-------------------+----------------------------------------------------------+")

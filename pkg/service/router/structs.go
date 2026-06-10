@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package router
 
 /*
 #cgo CFLAGS: -Wall -I../../dcgm/include
-#cgo LDFLAGS: -L../../dcgm/lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -lhydmi -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdint.h>
 #include <kfd_ioctl.h>
 #include <rocm_smi64Config.h>
@@ -2001,41 +2005,4 @@ type Job struct {
 	// EndedAt 作业结束（成功/失败/取消）的时间戳（零值表示尚未结束）
 	// example: 2025-12-29T10:30:00Z
 	EndedAt time.Time `json:"endedAt"`
-}
-
-// DcuLinkInfo 描述两张 DCU 之间的互联关系
-type DcuLinkInfo struct {
-	// SrcDvInd 源 DCU 索引
-	// example: 0
-	SrcDvInd int `json:"srcDvInd"`
-
-	// DstDvInd 目标 DCU 索引
-	// example: 1
-	DstDvInd int `json:"dstDvInd"`
-
-	// 目标DCU的pciID
-	// example: 0000:07:00.0
-	PciID string `json:"PciID"`
-
-	// LinkType 链路类型: PCIE / XGMI / HYSWITCH / NONE
-	// example: XGMI
-	LinkType string `json:"linkType"`
-
-	// Weight 链路权重
-	// example: 2
-	Weight int `json:"weight"`
-
-	// Hops 跳数（目前可置 0 或 1）
-	// example: 1
-	Hops int `json:"hops"`
-}
-
-// DcuInterconnectMatrix 描述整机 DCU 互联矩阵
-type DcuInterconnectMatrix struct {
-	// DeviceCount DCU 总数
-	// example: 8
-	DeviceCount int `json:"deviceCount"`
-
-	// Matrix 互联矩阵: [src][dst] 对应 DcuLinkInfo
-	Matrix [][]DcuLinkInfo `json:"matrix"`
 }

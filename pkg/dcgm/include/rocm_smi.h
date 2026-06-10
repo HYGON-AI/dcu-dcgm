@@ -1,4 +1,7 @@
 /*
+ * SPDX-License-Identifier: NCSA
+ * Copyright (c) 2017-2024 Advanced Micro Devices, Inc. All rights reserved.
+ *
  * =============================================================================
  * The University of Illinois/NCSA
  * Open Source License (NCSA)

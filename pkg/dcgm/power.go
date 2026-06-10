@@ -1,6 +1,10 @@
 // Package dcgm 提供一个用于对 GPU 卡进行功耗压测的简单工具集。
 // 功能包括：启动卡的监控进程 (hy-smi)、启动 workload（通过 numactl 启动
 // 内嵌的 gemm 压测程序）、等待 workload 完成并解析监控日志来计算每卡的最大功耗与平均功耗。
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 import (

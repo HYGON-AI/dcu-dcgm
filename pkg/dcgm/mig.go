@@ -1,8 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+ */
 package dcgm
 
 /*
 #cgo CFLAGS: -Wall -I./include
-#cgo LDFLAGS: -L./lib -lrocm_smi64 -lhydmi -lhydmi_mig -Wl,--unresolved-symbols=ignore-in-object-files
+#cgo LDFLAGS: -L/opt/hyhal/lib -Wl,-rpath,/opt/hyhal/lib -lrocm_smi64 -lhydmi -lhydmi_mig -Wl,--unresolved-symbols=ignore-in-object-files
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -663,7 +667,7 @@ func nvmlGetSystemMigMode() (currentMode, pendingMode int, err error) {
 func migConfigs() ([]MigConfig, error) {
 	const (
 		baseDir = "/etc/dmi_mig_config" // 基础配置目录
-		ciDir   = "/ci"                 // CI配置子目录
+		ciDir   = "/ci" // CI配置子目录
 	)
 
 	// 检查基础目录是否存在
@@ -966,3 +970,4 @@ func formatMIGName(
 		memoryGB,
 	)
 }
+
