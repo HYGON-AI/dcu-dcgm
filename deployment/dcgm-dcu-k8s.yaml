@@ -44,7 +44,7 @@ spec:
               mountPath: /home/dcgm/config
           env:
             - name: LD_LIBRARY_PATH
-              value: "/home/dcgm/lib/driver6.2.x"
+              value: "/opt/hyhal/lib"
       volumes:
         - name: kfd
           hostPath:

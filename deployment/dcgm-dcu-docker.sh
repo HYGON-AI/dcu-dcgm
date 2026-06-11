@@ -11,5 +11,5 @@ docker run --name dcgm-dcu -d --privileged \
   -v /opt/hyhal:/opt/hyhal \
   -v /home/chengdm/config:/home/dcgm/config \
   -p 16081:16081 \
-  -e LD_LIBRARY_PATH="/home/dcgm/lib/driver6.3.x" \
+  -e LD_LIBRARY_PATH="/opt/hyhal/lib" \
   dcgm-dcu:v2.0.0

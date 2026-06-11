@@ -5,18 +5,23 @@
 DCU DCGM 为 DCU 管理提供 Golang 绑定接口，是管理和监控DCU的工具。包括健康状态监控、功率、时钟频率调控，以及资源使用情况统计等。
 
 ## 组件使用前置条件
-前置条件：DCGM运行依赖于DCU底层动态链接库libhydmi.so和librocm_smi64.so，这两个动态链接库的安装方式如下。
+前置条件：DCGM 运行依赖于 DCU 底层动态链接库 `libhydmi.so` 和 `librocm_smi64.so`（MIG 功能还需 `libhydmi_mig.so`），均随 DCU 驱动安装提供，安装方式如下。
+
 #### 安装方式一：
-1. DCU驱动安装（libhydmi.so动态链接库包含在DCU驱动中）
-2. DTK安装并运行source dtk_dir/env.sh使环境变量生效(librocm_smi64.so动态链接库包含在DTK中)
+1. 安装 DCU 驱动（上述动态链接库包含在驱动中，默认位于 `/opt/hyhal/lib`）
+2. 确认驱动安装完成后，系统可正常加载上述库文件
 
 #### 安装方式二：
-1. 将pkg/dcgm/lib目录下librocm_smi64.so.2.8和libhydmi.so.1.4动态链接库放置到物理机某个目录下（如/your/path/dcgm/lib）。
-   在/your/path/dcgm/lib目录创建指向librocm_smi64.so.2.8的软链接librocm_smi64.so.2和指向librocm_smi64.so.2的软链接librocm_smi64.so；
-   在/your/path/dcgm/lib目录创建指向libhydmi.so.1.4的软链接libhydmi.so.1和指向libhydmi.so.1的软链接libhydmi.so。
+适用于已安装 DCU 驱动，但运行环境未自动找到动态库的场景。
+1. 确认驱动库目录（通常为 `/opt/hyhal/lib`）下存在 `librocm_smi64.so.2.8`、`libhydmi.so.1.5` 等版本文件；若缺少 `librocm_smi64.so`、`libhydmi.so` 等软链接，可在该目录下创建：
+   - `librocm_smi64.so.2` → `librocm_smi64.so.2.8`，`librocm_smi64.so` → `librocm_smi64.so.2`
+   - `libhydmi.so.1` → `libhydmi.so.1.5`，`libhydmi.so` → `libhydmi.so.1`
+   - （MIG 功能）`libhydmi_mig.so.1` → `libhydmi_mig.so.1.3`，`libhydmi_mig.so` → `libhydmi_mig.so.1`
    ![img.png](liblink.png)
-2. 动态链接库加载到系统环境变量
-   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/your/path/dcgm/lib
+2. 将驱动库目录加入动态库搜索路径：
+   ```bash
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/hyhal/lib
+   ```
 
 ## 使用流程
 
