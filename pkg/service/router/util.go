@@ -1,4 +1,4 @@
-/*
+﻿/*
  * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
  */
@@ -12,7 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"g.sugon.com/das/dcgm-dcu/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
 )
 
 // 将字符串转换为 RSMIDevPerfLevel 类型
