@@ -1,4 +1,4 @@
-module github.com/HYGON-AI/dcgm-dcu
+module github.com/HYGON-AI/dcu-dcgm
 
 go 1.22
 

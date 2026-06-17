@@ -1,4 +1,4 @@
-/*
+﻿/*
  * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
  */
@@ -9,7 +9,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "g.sugon.com/das/dcgm-dcu/pkg/doc/docs"
+	_ "github.com/HYGON-AI/dcu-dcgm/pkg/doc/docs"
 )
 
 //	@title			Swagger Example API

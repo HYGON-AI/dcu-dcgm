@@ -1,4 +1,4 @@
-/*
+﻿/*
  * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
  */
@@ -11,7 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"g.sugon.com/das/dcgm-dcu/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
 )
 
 // -------------------- process list --------------------

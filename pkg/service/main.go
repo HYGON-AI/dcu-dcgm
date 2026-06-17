@@ -1,4 +1,4 @@
-/*
+﻿/*
  * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2026 Hygon Information Technology Co., Ltd.
  */
@@ -14,9 +14,9 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"g.sugon.com/das/dcgm-dcu/pkg/dcgm"
-	_ "g.sugon.com/das/dcgm-dcu/pkg/service/docs"
-	"g.sugon.com/das/dcgm-dcu/pkg/service/router"
+	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	_ "github.com/HYGON-AI/dcu-dcgm/pkg/service/docs"
+	"github.com/HYGON-AI/dcu-dcgm/pkg/service/router"
 )
 
 // 【修改】增加 listenFlag 支持绑定 IP，可选
