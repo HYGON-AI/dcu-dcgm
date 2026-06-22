@@ -9,7 +9,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "github.com/HYGON-AI/dcu-dcgm/pkg/doc/docs"
+	_ "github.com/HYGON-AI/dcu-dcgm/v2/pkg/doc/docs"
 )
 
 //	@title			Swagger Example API

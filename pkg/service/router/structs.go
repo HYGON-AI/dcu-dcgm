@@ -20,7 +20,7 @@ import "C"
 import (
 	"time"
 
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
 )
 
 // Response represents a basic structure for API responses.

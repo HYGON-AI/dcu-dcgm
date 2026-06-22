@@ -141,7 +141,7 @@ curl -G http://localhost:16081/NumMonitorDevices
 
 ```bash
 
-go get github.com/HYGON-AI/dcu-dcgm@latest
+go get github.com/HYGON-AI/dcu-dcgm/v2@latest
 
 ```
 
@@ -149,7 +149,7 @@ go get github.com/HYGON-AI/dcu-dcgm@latest
 
 ```go
 
-import "github.com/HYGON-AI/dcu-dcgm"
+import "github.com/HYGON-AI/dcu-dcgm/v2"
 
 
 
@@ -177,7 +177,7 @@ func main() {
 
 ```
 
-replace github.com/HYGON-AI/dcu-dcgm => /your/path/dcgm-dcu
+replace github.com/HYGON-AI/dcu-dcgm/v2 => /your/path/dcgm-dcu
 
 ```
 

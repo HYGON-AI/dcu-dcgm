@@ -14,9 +14,9 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
-	_ "github.com/HYGON-AI/dcu-dcgm/pkg/service/docs"
-	"github.com/HYGON-AI/dcu-dcgm/pkg/service/router"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
+	_ "github.com/HYGON-AI/dcu-dcgm/v2/pkg/service/docs"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/service/router"
 )
 
 // 【修改】增加 listenFlag 支持绑定 IP，可选

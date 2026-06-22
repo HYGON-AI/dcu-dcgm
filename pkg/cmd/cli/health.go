@@ -12,7 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
 )
 
 var healthCheckCmd = &cobra.Command{

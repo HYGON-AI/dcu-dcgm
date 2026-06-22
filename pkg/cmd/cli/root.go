@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
 )
 
 var dcgmInitialized bool // 追踪 DCGM 是否成功初始化

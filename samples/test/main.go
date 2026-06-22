@@ -12,7 +12,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/golang/glog"
 
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
 )
 
 const defaultSampleDurationMs = 1000

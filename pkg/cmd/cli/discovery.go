@@ -6,7 +6,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
 	"github.com/spf13/cobra"
 	"slices"
 	"strconv"

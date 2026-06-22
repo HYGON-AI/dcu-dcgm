@@ -11,7 +11,7 @@ import (
 
 	"github.com/golang/glog"
 
-	"github.com/HYGON-AI/dcu-dcgm/pkg/dcgm"
+	"github.com/HYGON-AI/dcu-dcgm/v2/pkg/dcgm"
 )
 
 func main() {

@@ -4,7 +4,7 @@
  */
 package main
 
-import "github.com/HYGON-AI/dcu-dcgm/pkg/cmd/cli"
+import "github.com/HYGON-AI/dcu-dcgm/v2/pkg/cmd/cli"
 
 func main() {
 	cli.Execute() // 执行 rootCmd
